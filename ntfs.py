@@ -152,6 +152,9 @@ with open(r"\\.\E:", "rb") as fp: # Mở ổ đĩa dạng Binary
 
                         if (residentType == 0): # thuộc kiểu resident
                             fileSize = sizeContent
+                            fp.seek(startContent, 0)
+                            if (fileName.find('txt') != -1): # Đọc file nếu txt
+                                print(fp.read(sizeContent).decode())
                         else:
                             fp.seek(startAttribute + 0x38, 0)
                             fileSize = int.from_bytes(fp.read(8), 'little')
@@ -161,7 +164,7 @@ with open(r"\\.\E:", "rb") as fp: # Mở ổ đĩa dạng Binary
             startMFTEntry += bytesPerMFTEntry
             i += 1
 
-            if (i < 37): continue
+            if (i < 26): continue
 
             if (fileDateCreated == ''): break
 
