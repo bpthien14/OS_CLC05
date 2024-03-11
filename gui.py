@@ -5,13 +5,13 @@ from tkinter import ttk
 # Thư viện tính thời gian
 from datetime import datetime, timedelta
 
-# Tính bù 2 của byte
+# Tính bù 2 của byte có dấu để 
 def twos_comp(val, bits):
     if (val & (1 << (bits - 1))) != 0: # Nếu bit dấu là 1...
         val = val - (1 << bits)        # Tính giá trị âm
     return val                         # Trả về giá trị
 
-# Lấy thuộc tính của file FAT32
+# Lấy thuộc tính của file FAT32 từ mã thuộc tính 
 def getAttributes(attributes):
     temp = ""
     for i in range(len(attributes)):
@@ -71,8 +71,8 @@ filesNTFS = []
 # Tạo cửa sổ
 window = tk.Tk()
 window.title('Partition Manager')
-window.geometry('500x500')
-window.iconbitmap('icon.ico')
+window.geometry('800x500')
+window.iconbitmap('partition_icon_237460.ico')
 
 # Tạo cây
 tree = ttk.Treeview(window, height=20)
@@ -156,19 +156,23 @@ partition_letter = ''
 
 # Mở partition
 def open_partition():
+    #clear list của FAT32 và NTFS để cbi cho data mới
     global filesFAT32
     filesFAT32.clear()
     global filesNTFS
     filesNTFS.clear()
     global partition_letter
+    #Đọc partition từ USB
     partition_letter = partition_input.get()
     try:
+        #mở partion dưới dạng binary file
         with open("\\\\.\\" + partition_letter + ":", "rb") as fp:
-            # Đọc format
+            # Đọc format với 3 bytes đầu tiên để check type USB
             fp.read(3)
             type = fp.read(5).decode("ascii")
             # Kiểu NTFS
             if type == "NTFS ":
+                #Đọc cấu trúc NTFS
                 fp.seek(0x0B, 0)
                 bytesPerSector = int.from_bytes(fp.read(2), 'little')
                 fp.seek(0x0D, 0)
@@ -186,16 +190,17 @@ def open_partition():
                 fp.seek(0x40, 0)
                 bytesPerMFTEntryNC = int.from_bytes(fp.read(1), 'little')
                 bytesPerMFTEntry = 2 ** abs(twos_comp(bytesPerMFTEntryNC, len(bin(bytesPerMFTEntryNC)[2:])))
-
+                #Tính toán vị trí của MFT và MFT Entry đầu tiên để đọc thông tin file
                 MFTstartByte = MFTstartCluster * sectorsPerCluster * bytesPerSector
                 startMFTEntry = MFTstartByte
-
+                #Mảng chứa thông tin file NTFS 
                 fp.seek(startMFTEntry, 0)
                 fp.read(1)
                 fp.seek(-1, 1)
-
+                #Đọc thông tin file từ MFT Entry đầu tiên
                 i = 0
                 while True:
+                    @
                     fp.seek(0x14, 1)
                     offsetFirstAttribute = int.from_bytes(fp.read(2), 'little')
                     fp.seek(-2 - 0x14, 1)

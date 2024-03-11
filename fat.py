@@ -39,7 +39,7 @@ def getAttributes(atributes):
 
 from datetime import datetime, timedelta
 
-with open(r"\\.\F:", "rb") as fp:
+with open(r"\\.\D:", "rb") as fp:
     fp.read(3)
     type = fp.read(5).decode("ascii")
     if (type == "MSDOS"):
